@@ -18,3 +18,11 @@ configure it in the web.xml file to change that.
 Intended use: We use the cadcSIA.jar as a library and have a separate project to build and deploy the war file. That project
 has our prefered JobManager implementation and config files.
 
+
+IMPORTANT NOTE: The implementation of "POS=RANGE 12/14 13/15" makes use of a custom function we have implemented in the CADC
+TAP service to query by coordinate range: RANGE_S2D(ra1, ra2, dec1, dec2). The implementation uses the pg_sphere sbox type
+directly. We took this approach in our TAP service after several discussions concerning ADQL showed that there is general
+agreement that the geometry functions in ADQL-2.0 giot it wrong in trying to map directly to STC regions, specificially
+in including coordinate system metadata in the geometry but also using STC BOX instead of a simple coordinate range that 
+users want and is easier to implement. So RANGE_S2D is a simple range with no embedded coordinate metadata.
+
