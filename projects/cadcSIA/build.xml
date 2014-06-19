@@ -87,7 +87,7 @@
     <import file="extras.xml" optional="true" />
     
     <property name="project" value="cadcSIA" />
-    <property name="warfile" value="sia2.war" />
+    <property name="warfile" value="cadcSIA.war" />
 
 
     <!-- JAR files to be included in classpath and war file -->

@@ -177,9 +177,10 @@ public class SiaRunner implements JobRunner
             //String version = rv.getVersion();
             
             MaxRecValidator mv = new MaxRecValidator();
+            mv.setJob(job);
             mv.setDefaultValue(DEF_MAXREC);
             mv.setMaxValue(MAX_MAXREC);
-            Integer maxrec = mv.validate(job.getParameterList());
+            Integer maxrec = mv.validate();
             
             ParamExtractor pe = new ParamExtractor(SiaValidator.QUERY_PARAMS);
             Map<String,List<String>> queryParams = pe.getParameters(job.getParameterList());
