@@ -420,7 +420,9 @@ public class SiaValidator
         }
     }
     
-    static Range<String> parseStringRange(String v)
+    // this is only used as an intermediate parsing state; there is no validn usage 
+    // of string ranges in query parameters
+    private static Range<String> parseStringRange(String v)
     {
         int i = v.indexOf('/');
         int j = v.lastIndexOf('/');
