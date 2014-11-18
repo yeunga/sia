@@ -251,8 +251,8 @@ public class AdqlQueryGenerator
         List<String> dptypes = sia.validateDPTYPE(queryParams);
         addInListConstraint(query, "dataproduct_type", dptypes);
 
-        List<Range<Double>> calibs = sia.validateCALIB(queryParams);
-        addNumericRangeConstraint(query, "calib_level", "calib_level", calibs);
+        List<Range<Integer>> calibs = sia.validateCALIB(queryParams);
+        addIntegerRangeConstraint(query, "calib_level", "calib_level", calibs);
 
         List<String> targets = sia.validateTARGET(queryParams);
         addInListConstraint(query, "target_name", targets);
@@ -268,7 +268,40 @@ public class AdqlQueryGenerator
 
         return query.toString();
     }
-    
+
+    private void addIntegerRangeConstraint(StringBuilder query, String lbCol, String ubCol, List<Range<Integer>> ranges)
+    {
+        if (!ranges.isEmpty())
+        {
+            if (ranges.size() > 1)
+                query.append(" AND (");
+            else
+                query.append(" AND ");
+            boolean needOr = false;
+            for (Range<Integer> r : ranges)
+            {
+                if (needOr)
+                    query.append(" OR ");
+                query.append("(");
+                if (lbCol.equals(ubCol) && r.getLower() != null && r.getUpper() != null) // nicer syntax, maybe better optimised in DB
+                    query.append(lbCol).append(" BETWEEN ").append(r.getLower()).append(" AND ").append(r.getUpper());
+                else
+                {
+                    if (r.getUpper() != null)
+                        query.append(lbCol).append(" <= ").append(r.getUpper());
+                    if (r.getLower() != null && r.getUpper() != null)
+                        query.append(" AND ");
+                    if (r.getLower() != null)
+                        query.append(r.getLower()).append(" <= ").append(ubCol);
+                }
+                query.append(")");
+                needOr = true;
+            }
+            if (ranges.size() > 1)
+                query.append(")");
+        }
+    }
+
     private void addNumericRangeConstraint(StringBuilder query, String lbCol, String ubCol, List<Range<Double>> ranges)
     {
         if (!ranges.isEmpty())
@@ -286,7 +319,40 @@ public class AdqlQueryGenerator
                 if (lbCol.equals(ubCol) && r.getLower() != null && r.getUpper() != null) // nicer syntax, maybe better optimised in DB
                     query.append(lbCol).append(" BETWEEN ").append(r.getLower()).append(" AND ").append(r.getUpper());
                 else
-                {   
+                {
+                    if (r.getUpper() != null)
+                        query.append(lbCol).append(" <= ").append(r.getUpper());
+                    if (r.getLower() != null && r.getUpper() != null)
+                        query.append(" AND ");
+                    if (r.getLower() != null)
+                        query.append(r.getLower()).append(" <= ").append(ubCol);
+                }
+                query.append(")");
+                needOr = true;
+            }
+            if (ranges.size() > 1)
+                query.append(")");
+        }
+    }
+
+    private void addFooRangeConstraint(StringBuilder query, String lbCol, String ubCol, List<Range<Double>> ranges)
+    {
+        if (!ranges.isEmpty())
+        {
+            if (ranges.size() > 1)
+                query.append(" AND (");
+            else
+                query.append(" AND ");
+            boolean needOr = false;
+            for (Range<Double> r : ranges)
+            {
+                if (needOr)
+                    query.append(" OR ");
+                query.append("(");
+                if (lbCol.equals(ubCol) && r.getLower() != null && r.getUpper() != null) // nicer syntax, maybe better optimised in DB
+                    query.append(lbCol).append(" BETWEEN ").append(r.getLower()).append(" AND ").append(r.getUpper());
+                else
+                {
                     if (r.getUpper() != null)
                         query.append(lbCol).append(" <= ").append(r.getUpper());
                     if (r.getLower() != null && r.getUpper() != null)
@@ -306,21 +372,29 @@ public class AdqlQueryGenerator
     {
         if (!values.isEmpty())
         {
-            query.append(" AND ").append(column).append(" IN ( ");
-            boolean first = true;
-            for (String value : values)
+            query.append(" AND ").append(column);
+            if (values.size() == 1)
             {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    query.append(",");
-                }
-                query.append("'").append(value).append("'");
+                query.append(" = '").append(values.get(0)).append("'");
             }
-            query.append(" )");
+            else
+            {
+                query.append(" IN ( ");
+                boolean first = true;
+                for (String value : values)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        query.append(",");
+                    }
+                    query.append("'").append(value).append("'");
+                }
+                query.append(" )");
+            }
         }
     }
 

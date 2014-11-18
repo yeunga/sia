@@ -262,9 +262,9 @@ public class SiaValidator
         return validateString(DPTYPE, params, ALLOWED_DPTYPES);
     }
 
-    public List<Range<Double>> validateCALIB(Map<String, List<String>> params)
+    public List<Range<Integer>> validateCALIB(Map<String, List<String>> params)
     {
-        return validateNumeric(CALIB, params);
+        return validateInteger(CALIB, params);
     }
 
     public List<String> validateTARGET(Map<String, List<String>> params)
@@ -307,6 +307,24 @@ public class SiaValidator
         }
         return ret;
     }
+
+    List<Range<Integer>> validateInteger(String paramName, Map<String,List<String>> params)
+    {
+        List<Range<Integer>> ret = new ArrayList<Range<Integer>>();
+        if (params == null)
+            return ret;
+        List<String> values = params.get(paramName);
+        if (values == null)
+            return ret;
+        for (String v : values)
+        {
+            log.debug("validateNumeric " + paramName + ": "  + v);
+            Range<String> sr = parseStringRange(v);
+            ret.add( parseIntegerRange(paramName, sr) );
+        }
+
+        return ret;
+    }
     
     List<Range<Double>> validateNumeric(String paramName, Map<String,List<String>> params)
     {
@@ -325,7 +343,25 @@ public class SiaValidator
         
         return ret;
     }
-    
+
+    static Range<Integer> parseIntegerRange(String pname, Range<String> sr)
+    {
+        try
+        {
+            Integer lb = null;
+            Integer ub = null;
+            if (sr.getLower() != null)
+                lb = new Integer(sr.getLower());
+            if (sr.getUpper() != null)
+                ub = new Integer(sr.getUpper());
+            return new Range<Integer>(lb, ub);
+        }
+        catch(NumberFormatException ex)
+        {
+            throw new IllegalArgumentException(pname + " cannot parse to integer: " + sr);
+        }
+    }
+
     static Range<Double> parseDoubleRange(String pname, Range<String> sr)
     {
         try

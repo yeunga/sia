@@ -712,7 +712,7 @@ public class SiaValidatorTest
             Assert.assertTrue(empty.isEmpty());
 
             Method m = SiaValidator.class.getMethod("validateCALIB", Map.class);
-            doValidateNumeric(m, "CALIB", testParams);
+            doValidateInteger(m, "CALIB", testParams);
         }
         catch (Exception unexpected)
         {
@@ -864,6 +864,91 @@ public class SiaValidatorTest
                 Assert.assertNotNull(pols);
                 Assert.assertEquals(len[i], pols.size());
             }
+        }
+    }
+
+    public void doValidateInteger(Method m, String paramName, String[] testParams)
+    {
+        String LB = "12/";
+        String UB = "/34";
+        String OPEN = "/";
+        String SCALAR = "1";
+        String[] testValues = new String[]
+        {
+            "12/34",
+            "12/34",
+            SCALAR,
+            LB,
+            UB,
+            OPEN
+        };
+        try
+        {
+            Map<String,List<String>> params = new TreeMap<String,List<String>>(new CaseInsensitiveStringComparator());
+
+            for (String tp : testParams)
+            {
+                for (String tv : testValues)
+                {
+                    List<String> vals = new ArrayList<String>();
+                    vals.add(tv);
+                    params.put(tp, vals);
+
+                    List<Range<Integer>> ranges = (List<Range<Integer>>) m.invoke(sia, params);
+
+                    Assert.assertNotNull(ranges);
+                    Assert.assertEquals(1, ranges.size());
+                    Range<Integer> r = ranges.get(0);
+
+                    if (tv == SCALAR)
+                    {
+                        Assert.assertEquals(new Integer(1), r.getLower());
+                        Assert.assertEquals(new Integer(1), r.getUpper());
+                    }
+                    else if (tv == LB)
+                    {
+                        Assert.assertEquals(new Integer(12), r.getLower());
+                        Assert.assertNull(r.getUpper());
+                    }
+                    else if (tv == UB)
+                    {
+                        Assert.assertNull(r.getLower());
+                        Assert.assertEquals(new Integer(34), r.getUpper());
+                    }
+                    else if (tv == OPEN)
+                    {
+                        Assert.assertNull(r.getLower());
+                        Assert.assertNull(r.getUpper());
+                    }
+                    else
+                    {
+                        Assert.assertEquals(new Integer(12), r.getLower());
+                        Assert.assertEquals(new Integer(34), r.getUpper());
+                    }
+                }
+            }
+
+            // test multiple values
+            params.clear();
+            List<String> vals = new ArrayList<String>();
+            for (int i=0; i<2; i++)
+            {
+                vals.add(testValues[i]);
+            }
+            params.put(paramName, vals);
+            List<Range<Integer>> ranges = (List<Range<Integer>>) m.invoke(sia, params);
+            Assert.assertNotNull(ranges);
+            Assert.assertEquals(2, ranges.size());
+            for (Range<Integer> r : ranges)
+            {
+                Assert.assertEquals(new Integer(12), r.getLower());
+                Assert.assertEquals(new Integer(34), r.getUpper());
+            }
+        }
+        catch (Exception unexpected)
+        {
+            log.error("unexpected exception", unexpected);
+            Assert.fail("unexpected exception: " + unexpected);
         }
     }
 
