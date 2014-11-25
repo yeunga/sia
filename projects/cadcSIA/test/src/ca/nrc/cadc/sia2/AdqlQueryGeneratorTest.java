@@ -150,6 +150,18 @@ public class AdqlQueryGeneratorTest
             params.put("FOV", Arrays.asList("0.5/")); // > 0.5 deg
             params.put("SPATRES", Arrays.asList("/0.2")); // < 0.2 arcsec
             params.put("EXPTIME", Arrays.asList("600.0/3600.0")); // 10-60 minutes
+
+            params.put("ID", Arrays.asList("A12345"));
+            params.put("COLLECTION", Arrays.asList("CFHT"));
+            params.put("FACILITY", Arrays.asList("JCMT"));
+            params.put("INSTRUMENT", Arrays.asList("WIRCam"));
+            params.put("DPTYPE", Arrays.asList("cube"));
+            params.put("CALIB", Arrays.asList("2/"));
+            params.put("TARGET", Arrays.asList("M33"));
+            params.put("TIMERES", Arrays.asList("1.0/2.0"));
+            params.put("SPECRP", Arrays.asList("/500"));
+            params.put("FORMAT", Arrays.asList("application/fits"));
+
             AdqlQueryGenerator gen = new AdqlQueryGenerator(params);
             String adql = gen.getQuery();
             log.info("testSingleParams ADQL:\n" + adql);
@@ -166,6 +178,17 @@ public class AdqlQueryGeneratorTest
             Assert.assertTrue("s_fov", adql.contains("s_fov"));
             Assert.assertTrue("s_resolution", adql.contains("s_resolution"));
             Assert.assertTrue("t_exptime", adql.contains("t_exptime"));
+
+            Assert.assertTrue("obs_publisher_did", adql.contains("obs_publisher_did"));
+            Assert.assertTrue("obs_collection", adql.contains("obs_collection"));
+            Assert.assertTrue("facility_name", adql.contains("facility_name"));
+            Assert.assertTrue("instrument_name", adql.contains("instrument_name"));
+            Assert.assertTrue("dataproduct_type", adql.contains("dataproduct_type"));
+            Assert.assertTrue("calib_level", adql.contains("calib_level"));
+            Assert.assertTrue("target_name", adql.contains("target_name"));
+            Assert.assertTrue("t_resolution", adql.contains("t_resolution"));
+            Assert.assertTrue("em_res_power", adql.contains("em_res_power"));
+            Assert.assertTrue("access_format", adql.contains("access_format"));
         }
         catch (Exception unexpected)
         {
@@ -188,6 +211,17 @@ public class AdqlQueryGeneratorTest
             params.put("FOV", Arrays.asList("0.5/", "/2.0"));
             params.put("SPATRES", Arrays.asList("/0.2", "0.02/"));
             params.put("EXPTIME", Arrays.asList("10/20", "600.0/3600.0"));
+
+            params.put("ID", Arrays.asList("A12345","12345B"));
+            params.put("COLLECTION", Arrays.asList("CFHT","JCMT"));
+            params.put("FACILITY", Arrays.asList("JCMT","BLAST"));
+            params.put("INSTRUMENT", Arrays.asList("WIRCam","MEGAPipe"));
+            params.put("DPTYPE", Arrays.asList("cube","image"));
+            params.put("CALIB", Arrays.asList("2/","/4"));
+            params.put("TARGET", Arrays.asList("M33","LMC"));
+            params.put("TIMERES", Arrays.asList("1.0/2.0","/3.0"));
+            params.put("SPECRP", Arrays.asList("/500","200/300"));
+            params.put("FORMAT", Arrays.asList("application/fits","text/xml"));
             
             AdqlQueryGenerator gen = new AdqlQueryGenerator(params);
             String adql = gen.getQuery();
@@ -205,6 +239,17 @@ public class AdqlQueryGeneratorTest
             Assert.assertTrue("s_fov", adql.contains("s_fov"));
             Assert.assertTrue("s_resolution", adql.contains("s_resolution"));
             Assert.assertTrue("t_exptime", adql.contains("t_exptime"));
+
+            Assert.assertTrue("obs_publisher_did", adql.contains("obs_publisher_did"));
+            Assert.assertTrue("obs_collection", adql.contains("obs_collection"));
+            Assert.assertTrue("facility_name", adql.contains("facility_name"));
+            Assert.assertTrue("instrument_name", adql.contains("instrument_name"));
+            Assert.assertTrue("dataproduct_type", adql.contains("dataproduct_type"));
+            Assert.assertTrue("calib_level", adql.contains("calib_level"));
+            Assert.assertTrue("target_name", adql.contains("target_name"));
+            Assert.assertTrue("t_resolution", adql.contains("t_resolution"));
+            Assert.assertTrue("em_res_power", adql.contains("em_res_power"));
+            Assert.assertTrue("access_format", adql.contains("access_format"));
         }
         catch (Exception unexpected)
         {

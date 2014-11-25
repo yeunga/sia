@@ -73,6 +73,7 @@ import ca.nrc.cadc.dali.util.UTCTimestampFormat;
 import ca.nrc.cadc.date.DateUtil;
 import ca.nrc.cadc.util.CaseInsensitiveStringComparator;
 import ca.nrc.cadc.util.Log4jInit;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
@@ -571,7 +572,241 @@ public class SiaValidatorTest
             Assert.fail("unexpected exception: " + unexpected);
         }
     }
-    
+
+    @Test
+    public void testValidateID()
+    {
+        try
+        {
+            String[] testParams = new String[] { "ID", "id", "Id" };
+
+            // null arg check
+            List<String> empty = sia.validateID(null);
+            Assert.assertNotNull(empty);
+            Assert.assertTrue(empty.isEmpty());
+
+            Method method = SiaValidator.class.getMethod("validateID", Map.class);
+            doValidateString(method, testParams, null);
+        }
+        catch (Exception unexpected)
+        {
+            log.error("unexpected exception", unexpected);
+            Assert.fail("unexpected exception: " + unexpected);
+        }
+    }
+
+    @Test
+    public void testValidateCOLLECTION()
+    {
+        try
+        {
+            String[] testParams = new String[] { "COLLECTION", "collection", "CoLlEcTiOn" };
+
+            // null arg check
+            List<String> empty = sia.validateCOLLECTION(null);
+            Assert.assertNotNull(empty);
+            Assert.assertTrue(empty.isEmpty());
+
+            Method method = SiaValidator.class.getMethod("validateCOLLECTION", Map.class);
+            doValidateString(method, testParams, null);
+        }
+        catch (Exception unexpected)
+        {
+            log.error("unexpected exception", unexpected);
+            Assert.fail("unexpected exception: " + unexpected);
+        }
+    }
+
+    @Test
+    public void testValidateFACILITY()
+    {
+        try
+        {
+            String[] testParams = new String[] { "FACILITY", "facility", "FaCiLiTy" };
+
+            // null arg check
+            List<String> empty = sia.validateFACILITY(null);
+            Assert.assertNotNull(empty);
+            Assert.assertTrue(empty.isEmpty());
+
+            Method method = SiaValidator.class.getMethod("validateFACILITY", Map.class);
+            doValidateString(method, testParams, null);
+        }
+        catch (Exception unexpected)
+        {
+            log.error("unexpected exception", unexpected);
+            Assert.fail("unexpected exception: " + unexpected);
+        }
+    }
+
+    @Test
+    public void testValidateINSTRUMENT()
+    {
+        try
+        {
+            String[] testParams = new String[] { "INSTRUMENT", "instrument", "InStRuMeNt" };
+
+            // null arg check
+            List<String> empty = sia.validateINSTRUMENT(null);
+            Assert.assertNotNull(empty);
+            Assert.assertTrue(empty.isEmpty());
+
+            Method method = SiaValidator.class.getMethod("validateINSTRUMENT", Map.class);
+            doValidateString(method, testParams, null);
+        }
+        catch (Exception unexpected)
+        {
+            log.error("unexpected exception", unexpected);
+            Assert.fail("unexpected exception: " + unexpected);
+        }
+    }
+
+    @Test
+    public void testValidateDPTYPE()
+    {
+        try
+        {
+            String[] testParams = new String[] { "DPTYPE", "dptype", "DpTyPe" };
+            String[] testValues = new String[] { "cube", "image" };
+
+            // null arg check
+            List<String> empty = sia.validateDPTYPE(null);
+            Assert.assertNotNull(empty);
+            Assert.assertTrue(empty.isEmpty());
+
+            Method method = SiaValidator.class.getMethod("validateDPTYPE", Map.class);
+            doValidateString(method, testParams, testValues);
+
+            // test invalid value
+            Map<String, List<String>> params = new TreeMap<String, List<String>>(new CaseInsensitiveStringComparator());
+            List<String> vals = new ArrayList<String>();
+            vals.add("FOO");
+            params.clear();
+            params.put(testParams[0], vals);
+            try
+            {
+                List<String> ret = sia.validateDPTYPE(params);
+                Assert.fail("expected IllegalArgumentException,. got: " + ret.size() + " String(s)");
+            }
+            catch (IllegalArgumentException expected)
+            {
+                log.debug("caught expected: " + expected);
+            }
+        }
+        catch (Exception unexpected)
+        {
+            log.error("unexpected exception", unexpected);
+            Assert.fail("unexpected exception: " + unexpected);
+        }
+    }
+
+    @Test
+    public void testValidateCALIB()
+    {
+        try
+        {
+            String[] testParams = new String[] { "CALIB", "calib", "CaLiB" };
+
+            List empty = sia.validateCALIB(null); // compile and null arg check
+            Assert.assertNotNull(empty);
+            Assert.assertTrue(empty.isEmpty());
+
+            Method m = SiaValidator.class.getMethod("validateCALIB", Map.class);
+            doValidateInteger(m, "CALIB", testParams);
+        }
+        catch (Exception unexpected)
+        {
+            log.error("unexpected exception", unexpected);
+            Assert.fail("unexpected exception: " + unexpected);
+        }
+    }
+
+    @Test
+    public void testValidateTARGET()
+    {
+        try
+        {
+            String[] testParams = new String[] { "TARGET", "target", "TaRgEt" };
+
+            // null arg check
+            List<String> empty = sia.validateTARGET(null);
+            Assert.assertNotNull(empty);
+            Assert.assertTrue(empty.isEmpty());
+
+            Method method = SiaValidator.class.getMethod("validateTARGET", Map.class);
+            doValidateString(method, testParams, null);
+        }
+        catch (Exception unexpected)
+        {
+            log.error("unexpected exception", unexpected);
+            Assert.fail("unexpected exception: " + unexpected);
+        }
+    }
+
+    @Test
+    public void testValidateTIMERES()
+    {
+        try
+        {
+            String[] testParams = new String[] { "TIMERES", "timeres", "TiMeReS" };
+
+            List empty = sia.validateTIMERES(null); // compile and null arg check
+            Assert.assertNotNull(empty);
+            Assert.assertTrue(empty.isEmpty());
+
+            Method m = SiaValidator.class.getMethod("validateTIMERES", Map.class);
+            doValidateNumeric(m, "TIMERES", testParams);
+        }
+        catch (Exception unexpected)
+        {
+            log.error("unexpected exception", unexpected);
+            Assert.fail("unexpected exception: " + unexpected);
+        }
+    }
+
+    @Test
+    public void testValidateSPECRP()
+    {
+        try
+        {
+            String[] testParams = new String[] { "SPECRP", "specrp", "SpEcRp" };
+
+            List empty = sia.validateSPECRP(null); // compile and null arg check
+            Assert.assertNotNull(empty);
+            Assert.assertTrue(empty.isEmpty());
+
+            Method m = SiaValidator.class.getMethod("validateSPECRP", Map.class);
+            doValidateNumeric(m, "SPECRP", testParams);
+        }
+        catch (Exception unexpected)
+        {
+            log.error("unexpected exception", unexpected);
+            Assert.fail("unexpected exception: " + unexpected);
+        }
+    }
+
+    @Test
+    public void testValidateFORMAT()
+    {
+        try
+        {
+            String[] testParams = new String[] { "FORMAT", "format", "FoRmAt" };
+
+            // null arg check
+            List<String> empty = sia.validateFORMAT(null);
+            Assert.assertNotNull(empty);
+            Assert.assertTrue(empty.isEmpty());
+
+            Method method = SiaValidator.class.getMethod("validateFORMAT", Map.class);
+            doValidateString(method, testParams, null);
+        }
+        catch (Exception unexpected)
+        {
+            log.error("unexpected exception", unexpected);
+            Assert.fail("unexpected exception: " + unexpected);
+        }
+    }
+
     @Test
     public void testValidateCustomParam()
     {
@@ -597,7 +832,126 @@ public class SiaValidatorTest
             Assert.fail("unexpected exception: " + unexpected);
         }
     }
-    
+
+    public void doValidateString(Method testMethod, String[] testParams, String[] testValues)
+        throws Exception
+    {
+        if (testValues == null)
+        {
+            testValues = new String[]
+            {
+                "12345",
+                "ABCDEF",
+                "abcdef",
+                "a1b2c3",
+                "A1b2C3"
+            };
+        }
+
+        int[] len = new int[] {1, testValues.length/2, testValues.length};
+        Map<String, List<String>> params = new TreeMap<String, List<String>>(new CaseInsensitiveStringComparator());
+        for (String tp : testParams)
+        {
+            for (int i = 0; i < len.length; i++)
+            {
+                List<String> vals = new ArrayList<String>();
+                for (int j = 0; j < len[i]; j++)
+                {
+                    vals.add(testValues[j]);
+                }
+                params.put(tp, vals);
+                List<String> pols = (List<String>) testMethod.invoke(sia, params);
+                Assert.assertNotNull(pols);
+                Assert.assertEquals(len[i], pols.size());
+            }
+        }
+    }
+
+    public void doValidateInteger(Method m, String paramName, String[] testParams)
+    {
+        String LB = "12/";
+        String UB = "/34";
+        String OPEN = "/";
+        String SCALAR = "1";
+        String[] testValues = new String[]
+        {
+            "12/34",
+            "12/34",
+            SCALAR,
+            LB,
+            UB,
+            OPEN
+        };
+        try
+        {
+            Map<String,List<String>> params = new TreeMap<String,List<String>>(new CaseInsensitiveStringComparator());
+
+            for (String tp : testParams)
+            {
+                for (String tv : testValues)
+                {
+                    List<String> vals = new ArrayList<String>();
+                    vals.add(tv);
+                    params.put(tp, vals);
+
+                    List<Range<Integer>> ranges = (List<Range<Integer>>) m.invoke(sia, params);
+
+                    Assert.assertNotNull(ranges);
+                    Assert.assertEquals(1, ranges.size());
+                    Range<Integer> r = ranges.get(0);
+
+                    if (tv == SCALAR)
+                    {
+                        Assert.assertEquals(new Integer(1), r.getLower());
+                        Assert.assertEquals(new Integer(1), r.getUpper());
+                    }
+                    else if (tv == LB)
+                    {
+                        Assert.assertEquals(new Integer(12), r.getLower());
+                        Assert.assertNull(r.getUpper());
+                    }
+                    else if (tv == UB)
+                    {
+                        Assert.assertNull(r.getLower());
+                        Assert.assertEquals(new Integer(34), r.getUpper());
+                    }
+                    else if (tv == OPEN)
+                    {
+                        Assert.assertNull(r.getLower());
+                        Assert.assertNull(r.getUpper());
+                    }
+                    else
+                    {
+                        Assert.assertEquals(new Integer(12), r.getLower());
+                        Assert.assertEquals(new Integer(34), r.getUpper());
+                    }
+                }
+            }
+
+            // test multiple values
+            params.clear();
+            List<String> vals = new ArrayList<String>();
+            for (int i=0; i<2; i++)
+            {
+                vals.add(testValues[i]);
+            }
+            params.put(paramName, vals);
+            List<Range<Integer>> ranges = (List<Range<Integer>>) m.invoke(sia, params);
+            Assert.assertNotNull(ranges);
+            Assert.assertEquals(2, ranges.size());
+            for (Range<Integer> r : ranges)
+            {
+                Assert.assertEquals(new Integer(12), r.getLower());
+                Assert.assertEquals(new Integer(34), r.getUpper());
+            }
+        }
+        catch (Exception unexpected)
+        {
+            log.error("unexpected exception", unexpected);
+            Assert.fail("unexpected exception: " + unexpected);
+        }
+    }
+
     public void doValidateNumeric(Method m, String paramName, String[] testParams)
     {
         String LB = "12.3/";

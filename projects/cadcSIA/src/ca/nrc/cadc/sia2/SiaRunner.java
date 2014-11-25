@@ -113,9 +113,6 @@ public class SiaRunner implements JobRunner
     private static final Integer DEF_MAXREC = new Integer(1000);
     private static final Integer MAX_MAXREC = null;
 
-    private static final String QUERY = "queryData";
-    private static final List<String> REQUEST_VALUES = Arrays.asList(QUERY);
-    
     private Job job;
     private JobUpdater jobUpdater;
     private SyncOutput syncOutput;
@@ -171,11 +168,6 @@ public class SiaRunner implements JobRunner
             }
             log.debug(job.getID() + ": QUEUED -> EXECUTING [OK]");
 
-            RequestValidator rv = new RequestValidator(REQUEST_VALUES);
-            rv.validate(job.getParameterList());
-            //String request = rv.getRequest();
-            //String version = rv.getVersion();
-            
             MaxRecValidator mv = new MaxRecValidator();
             mv.setJob(job);
             mv.setDefaultValue(DEF_MAXREC);

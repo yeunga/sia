@@ -235,10 +235,73 @@ public class AdqlQueryGenerator
         
         List<Range<Double>> exptimes = sia.validateEXPTIME(queryParams);
         addNumericRangeConstraint(query, "t_exptime", "t_exptime", exptimes);
-        
+
+        List<String> ids = sia.validateID(queryParams);
+        addInListConstraint(query, "obs_publisher_did", ids);
+
+        List<String> collections = sia.validateCOLLECTION(queryParams);
+        addInListConstraint(query, "obs_collection", collections);
+
+        List<String> facilities = sia.validateFACILITY(queryParams);
+        addInListConstraint(query, "facility_name", facilities);
+
+        List<String> instruments = sia.validateINSTRUMENT(queryParams);
+        addInListConstraint(query, "instrument_name", instruments);
+
+        List<String> dptypes = sia.validateDPTYPE(queryParams);
+        addInListConstraint(query, "dataproduct_type", dptypes);
+
+        List<Range<Integer>> calibs = sia.validateCALIB(queryParams);
+        addIntegerRangeConstraint(query, "calib_level", "calib_level", calibs);
+
+        List<String> targets = sia.validateTARGET(queryParams);
+        addInListConstraint(query, "target_name", targets);
+
+        List<Range<Double>> timeress = sia.validateTIMERES(queryParams);
+        addNumericRangeConstraint(query, "t_resolution", "t_resolution", timeress);
+
+        List<Range<Double>> specrps = sia.validateSPECRP(queryParams);
+        addNumericRangeConstraint(query, "em_res_power", "em_res_power", specrps);
+
+        List<String> formats = sia.validateFORMAT(queryParams);
+        addInListConstraint(query, "access_format", formats);
+
         return query.toString();
     }
-    
+
+    private void addIntegerRangeConstraint(StringBuilder query, String lbCol, String ubCol, List<Range<Integer>> ranges)
+    {
+        if (!ranges.isEmpty())
+        {
+            if (ranges.size() > 1)
+                query.append(" AND (");
+            else
+                query.append(" AND ");
+            boolean needOr = false;
+            for (Range<Integer> r : ranges)
+            {
+                if (needOr)
+                    query.append(" OR ");
+                query.append("(");
+                if (lbCol.equals(ubCol) && r.getLower() != null && r.getUpper() != null) // nicer syntax, maybe better optimised in DB
+                    query.append(lbCol).append(" BETWEEN ").append(r.getLower()).append(" AND ").append(r.getUpper());
+                else
+                {
+                    if (r.getUpper() != null)
+                        query.append(lbCol).append(" <= ").append(r.getUpper());
+                    if (r.getLower() != null && r.getUpper() != null)
+                        query.append(" AND ");
+                    if (r.getLower() != null)
+                        query.append(r.getLower()).append(" <= ").append(ubCol);
+                }
+                query.append(")");
+                needOr = true;
+            }
+            if (ranges.size() > 1)
+                query.append(")");
+        }
+    }
+
     private void addNumericRangeConstraint(StringBuilder query, String lbCol, String ubCol, List<Range<Double>> ranges)
     {
         if (!ranges.isEmpty())
@@ -256,7 +319,7 @@ public class AdqlQueryGenerator
                 if (lbCol.equals(ubCol) && r.getLower() != null && r.getUpper() != null) // nicer syntax, maybe better optimised in DB
                     query.append(lbCol).append(" BETWEEN ").append(r.getLower()).append(" AND ").append(r.getUpper());
                 else
-                {   
+                {
                     if (r.getUpper() != null)
                         query.append(lbCol).append(" <= ").append(r.getUpper());
                     if (r.getLower() != null && r.getUpper() != null)
@@ -271,4 +334,68 @@ public class AdqlQueryGenerator
                 query.append(")");
         }
     }
+
+    private void addFooRangeConstraint(StringBuilder query, String lbCol, String ubCol, List<Range<Double>> ranges)
+    {
+        if (!ranges.isEmpty())
+        {
+            if (ranges.size() > 1)
+                query.append(" AND (");
+            else
+                query.append(" AND ");
+            boolean needOr = false;
+            for (Range<Double> r : ranges)
+            {
+                if (needOr)
+                    query.append(" OR ");
+                query.append("(");
+                if (lbCol.equals(ubCol) && r.getLower() != null && r.getUpper() != null) // nicer syntax, maybe better optimised in DB
+                    query.append(lbCol).append(" BETWEEN ").append(r.getLower()).append(" AND ").append(r.getUpper());
+                else
+                {
+                    if (r.getUpper() != null)
+                        query.append(lbCol).append(" <= ").append(r.getUpper());
+                    if (r.getLower() != null && r.getUpper() != null)
+                        query.append(" AND ");
+                    if (r.getLower() != null)
+                        query.append(r.getLower()).append(" <= ").append(ubCol);
+                }
+                query.append(")");
+                needOr = true;
+            }
+            if (ranges.size() > 1)
+                query.append(")");
+        }
+    }
+
+    private void addInListConstraint(StringBuilder query, String column, List<String> values)
+    {
+        if (!values.isEmpty())
+        {
+            query.append(" AND ").append(column);
+            if (values.size() == 1)
+            {
+                query.append(" = '").append(values.get(0)).append("'");
+            }
+            else
+            {
+                query.append(" IN ( ");
+                boolean first = true;
+                for (String value : values)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        query.append(",");
+                    }
+                    query.append("'").append(value).append("'");
+                }
+                query.append(" )");
+            }
+        }
+    }
+
 }
