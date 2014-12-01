@@ -94,12 +94,28 @@ public class SiaValidator
     private static final String FOV = "FOV";
     private static final String SPATRES = "SPATRES";
     private static final String EXPTIME = "EXPTIME";
+    private static final String ID = "ID";
+    private static final String COLLECTION = "COLLECTION";
+    private static final String FACILITY = "FACILITY";
+    private static final String INSTRUMENT = "INSTRUMENT";
+    private static final String DPTYPE = "DPTYPE";
+    private static final String CALIB = "CALIB";
+    private static final String TARGET = "TARGET";
+    private static final String TIMERES = "TIMERES";
+    private static final String SPECRP = "SPECRP";
+    private static final String FORMAT = "FORMAT";
+
     // used by the SiaRunner to pick out supported params only
-    static final List<String> QUERY_PARAMS = Arrays.asList(POS, BAND, TIME, POL, FOV, SPATRES, EXPTIME);
+    static final List<String> QUERY_PARAMS = Arrays.asList(POS, BAND, TIME, POL, FOV, SPATRES, EXPTIME,
+                                                           ID, COLLECTION, FACILITY, INSTRUMENT, DPTYPE,
+                                                           CALIB, TARGET, TIMERES, SPECRP, FORMAT);
     
     // pol_states values are always upper case so use List
     static final List<String> POL_STATES = Arrays.asList("I", "Q", "U", "V", "RR", "LL", "RL", "LR", "XX", "YY", "XY", "YX");
-    
+
+    // allowed data product types are image and cube
+    static final List<String> ALLOWED_DPTYPES = Arrays.asList("cube", "image");
+
     private static final String CIRCLE = "CIRCLE";
     private static final String RANGE = "RANGE";
     private static final String POLYGON = "POLYGON";
@@ -204,6 +220,73 @@ public class SiaValidator
         return validateString(POL, params, POL_STATES);
     }
     
+    public List<Range<Double>> validateBAND(Map<String,List<String>> params)
+    {
+        return validateNumeric(BAND, params);
+    }
+    public List<Range<Double>> validateFOV(Map<String,List<String>> params)
+    {
+        return validateNumeric(FOV, params);
+    }
+    public List<Range<Double>> validateSPATRES(Map<String,List<String>> params)
+    {
+        return validateNumeric(SPATRES, params);
+    }
+    public List<Range<Double>> validateEXPTIME(Map<String,List<String>> params)
+    {
+        return validateNumeric(EXPTIME, params);
+    }
+
+    public List<String> validateID(Map<String,List<String>> params)
+    {
+        return validateString(ID, params, null);
+    }
+
+    public List<String> validateCOLLECTION(Map<String, List<String>> params)
+    {
+        return validateString(COLLECTION, params, null);
+    }
+
+    public List<String> validateFACILITY(Map<String, List<String>> params)
+    {
+        return validateString(FACILITY, params, null);
+    }
+
+    public List<String> validateINSTRUMENT(Map<String, List<String>> params)
+    {
+        return validateString(INSTRUMENT, params, null);
+    }
+
+    public List<String> validateDPTYPE(Map<String, List<String>> params)
+    {
+        return validateString(DPTYPE, params, ALLOWED_DPTYPES);
+    }
+
+    public List<Range<Integer>> validateCALIB(Map<String, List<String>> params)
+    {
+        return validateInteger(CALIB, params);
+    }
+
+    public List<String> validateTARGET(Map<String, List<String>> params)
+    {
+        return validateString(TARGET, params, null);
+    }
+
+    public List<Range<Double>> validateTIMERES(Map<String, List<String>> params)
+    {
+        return validateNumeric(TIMERES, params);
+    }
+
+    public List<Range<Double>> validateSPECRP(Map<String, List<String>> params)
+    {
+        return validateNumeric(SPECRP, params);
+    }
+
+    public List<String> validateFORMAT(Map<String, List<String>> params)
+    {
+        return validateString(FORMAT, params, null);
+    }
+
     public List<String> validateString(String paramName, Map<String,List<String>> params, Collection<String> allowedValues)
     {
         List<String> ret = new ArrayList<String>();
@@ -224,22 +307,23 @@ public class SiaValidator
         }
         return ret;
     }
-    
-    public List<Range<Double>> validateBAND(Map<String,List<String>> params)
+
+    List<Range<Integer>> validateInteger(String paramName, Map<String,List<String>> params)
     {
-        return validateNumeric(BAND, params);
-    }
-    public List<Range<Double>> validateFOV(Map<String,List<String>> params)
-    {
-        return validateNumeric(FOV, params);
-    }
-    public List<Range<Double>> validateSPATRES(Map<String,List<String>> params)
-    {
-        return validateNumeric(SPATRES, params);
-    }
-    public List<Range<Double>> validateEXPTIME(Map<String,List<String>> params)
-    {
-        return validateNumeric(EXPTIME, params);
+        List<Range<Integer>> ret = new ArrayList<Range<Integer>>();
+        if (params == null)
+            return ret;
+        List<String> values = params.get(paramName);
+        if (values == null)
+            return ret;
+        for (String v : values)
+        {
+            log.debug("validateNumeric " + paramName + ": "  + v);
+            Range<String> sr = parseStringRange(v);
+            ret.add( parseIntegerRange(paramName, sr) );
+        }
+
+        return ret;
     }
     
     List<Range<Double>> validateNumeric(String paramName, Map<String,List<String>> params)
@@ -259,7 +343,25 @@ public class SiaValidator
         
         return ret;
     }
-    
+
+    static Range<Integer> parseIntegerRange(String pname, Range<String> sr)
+    {
+        try
+        {
+            Integer lb = null;
+            Integer ub = null;
+            if (sr.getLower() != null)
+                lb = new Integer(sr.getLower());
+            if (sr.getUpper() != null)
+                ub = new Integer(sr.getUpper());
+            return new Range<Integer>(lb, ub);
+        }
+        catch(NumberFormatException ex)
+        {
+            throw new IllegalArgumentException(pname + " cannot parse to integer: " + sr);
+        }
+    }
+
     static Range<Double> parseDoubleRange(String pname, Range<String> sr)
     {
         try
@@ -318,7 +420,9 @@ public class SiaValidator
         }
     }
     
-    static Range<String> parseStringRange(String v)
+    // this is only used as an intermediate parsing state; there is no validn usage 
+    // of string ranges in query parameters
+    private static Range<String> parseStringRange(String v)
     {
         int i = v.indexOf('/');
         int j = v.lastIndexOf('/');
