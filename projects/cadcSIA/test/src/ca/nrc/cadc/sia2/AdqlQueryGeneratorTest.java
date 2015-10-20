@@ -144,22 +144,22 @@ public class AdqlQueryGeneratorTest
         {
             Map<String,List<String>> params = new TreeMap<String,List<String>>(new CaseInsensitiveStringComparator());
             params.put("POS", Arrays.asList("CIRCLE 12.3 45.6 0.2"));
-            params.put("BAND", Arrays.asList("500e-9/700e-9"));
-            params.put("TIME", Arrays.asList("54321.0/55432.1"));
+            params.put("BAND", Arrays.asList("500e-9 700e-9"));
+            params.put("TIME", Arrays.asList("54321.0 55432.1"));
             params.put("POL", Arrays.asList("I"));
-            params.put("FOV", Arrays.asList("0.5/")); // > 0.5 deg
-            params.put("SPATRES", Arrays.asList("/0.2")); // < 0.2 arcsec
-            params.put("EXPTIME", Arrays.asList("600.0/3600.0")); // 10-60 minutes
+            params.put("FOV", Arrays.asList("0.5 inf")); // > 0.5 deg
+            params.put("SPATRES", Arrays.asList("-inf 0.2")); // < 0.2 arcsec
+            params.put("EXPTIME", Arrays.asList("600.0 3600.0")); // 10-60 minutes
 
             params.put("ID", Arrays.asList("A12345"));
             params.put("COLLECTION", Arrays.asList("CFHT"));
             params.put("FACILITY", Arrays.asList("JCMT"));
             params.put("INSTRUMENT", Arrays.asList("WIRCam"));
             params.put("DPTYPE", Arrays.asList("cube"));
-            params.put("CALIB", Arrays.asList("2/"));
+            params.put("CALIB", Arrays.asList("2"));
             params.put("TARGET", Arrays.asList("M33"));
-            params.put("TIMERES", Arrays.asList("1.0/2.0"));
-            params.put("SPECRP", Arrays.asList("/500"));
+            params.put("TIMERES", Arrays.asList("1.0 2.0"));
+            params.put("SPECRP", Arrays.asList("-inf 500"));
             params.put("FORMAT", Arrays.asList("application/fits"));
 
             AdqlQueryGenerator gen = new AdqlQueryGenerator(params);
@@ -204,23 +204,23 @@ public class AdqlQueryGeneratorTest
         try
         {
             Map<String,List<String>> params = new TreeMap<String,List<String>>(new CaseInsensitiveStringComparator());
-            params.put("POS", Arrays.asList("CIRCLE 12.3 45.6 0.2", "RANGE -10/-8 +20/+22", "POLYGON 10 10 12 10 11 11"));
-            params.put("BAND", Arrays.asList("500e-9/700e-9", "200e-9/400e-9"));
-            params.put("TIME", Arrays.asList("54321.0/55432.1", "56789.0/"));
+            params.put("POS", Arrays.asList("CIRCLE 12.3 45.6 0.2", "RANGE -10 -8 +20 +22", "POLYGON 10 10 12 10 11 11"));
+            params.put("BAND", Arrays.asList("500e-9 700e-9", "200e-9 400e-9"));
+            params.put("TIME", Arrays.asList("54321.0 55432.1", "56789.0 inf"));
             params.put("POL", Arrays.asList("I", "Q", "U"));
-            params.put("FOV", Arrays.asList("0.5/", "/2.0"));
-            params.put("SPATRES", Arrays.asList("/0.2", "0.02/"));
-            params.put("EXPTIME", Arrays.asList("10/20", "600.0/3600.0"));
+            params.put("FOV", Arrays.asList("0.5 inf", "-inf 2.0"));
+            params.put("SPATRES", Arrays.asList("-inf 0.2", "0.02 inf"));
+            params.put("EXPTIME", Arrays.asList("10 20", "600.0 3600.0"));
 
             params.put("ID", Arrays.asList("A12345","12345B"));
             params.put("COLLECTION", Arrays.asList("CFHT","JCMT"));
             params.put("FACILITY", Arrays.asList("JCMT","BLAST"));
             params.put("INSTRUMENT", Arrays.asList("WIRCam","MEGAPipe"));
             params.put("DPTYPE", Arrays.asList("cube","image"));
-            params.put("CALIB", Arrays.asList("2/","/4"));
+            params.put("CALIB", Arrays.asList("2","4"));
             params.put("TARGET", Arrays.asList("M33","LMC"));
-            params.put("TIMERES", Arrays.asList("1.0/2.0","/3.0"));
-            params.put("SPECRP", Arrays.asList("/500","200/300"));
+            params.put("TIMERES", Arrays.asList("1.0 2.0","-inf 3.0"));
+            params.put("SPECRP", Arrays.asList("-inf 500","200 300"));
             params.put("FORMAT", Arrays.asList("application/fits","text/xml"));
             
             AdqlQueryGenerator gen = new AdqlQueryGenerator(params);
@@ -265,7 +265,7 @@ public class AdqlQueryGeneratorTest
         try
         {
             Map<String,List<String>> params = new TreeMap<String,List<String>>(new CaseInsensitiveStringComparator());
-            params.put("POS", Arrays.asList("RANGE / -2/2", "RANGE 10/20 /", "RANGE 12 34"));
+            params.put("POS", Arrays.asList("RANGE -inf inf -2 2", "RANGE 10 20 -inf inf", "RANGE 1 2 3 4"));
            
             AdqlQueryGenerator gen = new AdqlQueryGenerator(params);
             String adql = gen.getQuery();
