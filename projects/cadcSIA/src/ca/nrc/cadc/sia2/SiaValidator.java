@@ -377,13 +377,12 @@ public class SiaValidator
     private Range<String> parseStringRange(String v)
     {
         String[] vals = v.split(" ");
+        if (vals.length != 2)
+            throw new IllegalArgumentException("invalid range (must have 2 values): " + v);
         return parseStringRange(vals);
     }
     private static Range<String> parseStringRange(String[] vals)
     {
-        if (vals.length != 2)
-            throw new IllegalArgumentException("invalid range (must have 2 values): " + vals);
-        
         // make this directly parseable by java.lang.Double
         for (int i=0; i<2; i++)
         {
