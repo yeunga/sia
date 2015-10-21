@@ -237,25 +237,25 @@ public class AdqlQueryGenerator
         addNumericRangeConstraint(query, "t_exptime", "t_exptime", exptimes);
 
         List<String> ids = sia.validateID(queryParams);
-        addInListConstraint(query, "obs_publisher_did", ids);
+        addStringListConstraint(query, "obs_publisher_did", ids);
 
         List<String> collections = sia.validateCOLLECTION(queryParams);
-        addInListConstraint(query, "obs_collection", collections);
+        addStringListConstraint(query, "obs_collection", collections);
 
         List<String> facilities = sia.validateFACILITY(queryParams);
-        addInListConstraint(query, "facility_name", facilities);
+        addStringListConstraint(query, "facility_name", facilities);
 
         List<String> instruments = sia.validateINSTRUMENT(queryParams);
-        addInListConstraint(query, "instrument_name", instruments);
+        addStringListConstraint(query, "instrument_name", instruments);
 
         List<String> dptypes = sia.validateDPTYPE(queryParams);
-        addInListConstraint(query, "dataproduct_type", dptypes);
+        addStringListConstraint(query, "dataproduct_type", dptypes);
 
-        List<Range<Integer>> calibs = sia.validateCALIB(queryParams);
-        addIntegerRangeConstraint(query, "calib_level", "calib_level", calibs);
+        List<Integer> calibs = sia.validateCALIB(queryParams);
+        addIntegerListConstraint(query, "calib_level", calibs);
 
         List<String> targets = sia.validateTARGET(queryParams);
-        addInListConstraint(query, "target_name", targets);
+        addStringListConstraint(query, "target_name", targets);
 
         List<Range<Double>> timeress = sia.validateTIMERES(queryParams);
         addNumericRangeConstraint(query, "t_resolution", "t_resolution", timeress);
@@ -264,7 +264,7 @@ public class AdqlQueryGenerator
         addNumericRangeConstraint(query, "em_res_power", "em_res_power", specrps);
 
         List<String> formats = sia.validateFORMAT(queryParams);
-        addInListConstraint(query, "access_format", formats);
+        addStringListConstraint(query, "access_format", formats);
 
         return query.toString();
     }
@@ -368,7 +368,37 @@ public class AdqlQueryGenerator
         }
     }
 
-    private void addInListConstraint(StringBuilder query, String column, List<String> values)
+    private void addIntegerListConstraint(StringBuilder query, String column, List<Integer> values)
+    {
+        if (!values.isEmpty())
+        {
+            query.append(" AND ").append(column);
+            if (values.size() == 1)
+            {
+                query.append(" = ").append(values.get(0));
+            }
+            else
+            {
+                query.append(" IN ( ");
+                boolean first = true;
+                for (Integer value : values)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        query.append(",");
+                    }
+                    query.append(value);
+                }
+                query.append(" )");
+            }
+        }
+    }
+    
+    private void addStringListConstraint(StringBuilder query, String column, List<String> values)
     {
         if (!values.isEmpty())
         {
