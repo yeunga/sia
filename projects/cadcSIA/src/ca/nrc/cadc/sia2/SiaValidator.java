@@ -69,8 +69,6 @@
 
 package ca.nrc.cadc.sia2;
 
-import ca.nrc.cadc.dali.util.UTCTimestampFormat;
-import ca.nrc.cadc.date.DateUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -152,12 +150,14 @@ public class SiaValidator
             }
             else if (RANGE.equalsIgnoreCase(tokens[0]))
             {
-                if (tokens.length != 3)
+                if (tokens.length != 5)
                     throw new IllegalArgumentException("POS invalid RANGE: " + v);
                 try
                 {
-                    Range<String> s1 = parseStringRange(tokens[1]);
-                    Range<String> s2 = parseStringRange(tokens[2]);
+                    String[] rra = new String[] { tokens[1], tokens[2] };
+                    String[] rde = new String[] { tokens[3], tokens[4] };
+                    Range<String> s1 = parseStringRange(rra);
+                    Range<String> s2 = parseStringRange(rde);
                     Range<Double> ra = parseDoubleRange("POS", s1);
                     Range<Double> dec = parseDoubleRange("POS", s2);
                     ret.add(new CoordRange(ra, dec));
@@ -209,7 +209,7 @@ public class SiaValidator
         {
             log.debug("validateTime: " + v);
             Range<String> sr = parseStringRange(v);
-            ret.add( parseTimeRange(TIME, sr) );
+            ret.add( parseDoubleRange(TIME, sr) );
         }
         
         return ret;
@@ -262,7 +262,7 @@ public class SiaValidator
         return validateString(DPTYPE, params, ALLOWED_DPTYPES);
     }
 
-    public List<Range<Integer>> validateCALIB(Map<String, List<String>> params)
+    public List<Integer> validateCALIB(Map<String, List<String>> params)
     {
         return validateInteger(CALIB, params);
     }
@@ -308,9 +308,9 @@ public class SiaValidator
         return ret;
     }
 
-    List<Range<Integer>> validateInteger(String paramName, Map<String,List<String>> params)
+    List<Integer> validateInteger(String paramName, Map<String,List<String>> params)
     {
-        List<Range<Integer>> ret = new ArrayList<Range<Integer>>();
+       List<Integer> ret = new ArrayList<Integer>();
         if (params == null)
             return ret;
         List<String> values = params.get(paramName);
@@ -319,8 +319,15 @@ public class SiaValidator
         for (String v : values)
         {
             log.debug("validateNumeric " + paramName + ": "  + v);
-            Range<String> sr = parseStringRange(v);
-            ret.add( parseIntegerRange(paramName, sr) );
+            try
+            {
+                ret.add(new Integer(v));
+            }
+            catch(NumberFormatException ex)
+            {
+                throw new IllegalArgumentException(paramName + " invalid value: " + v);
+            }
+            finally { }
         }
 
         return ret;
@@ -344,24 +351,6 @@ public class SiaValidator
         return ret;
     }
 
-    static Range<Integer> parseIntegerRange(String pname, Range<String> sr)
-    {
-        try
-        {
-            Integer lb = null;
-            Integer ub = null;
-            if (sr.getLower() != null)
-                lb = new Integer(sr.getLower());
-            if (sr.getUpper() != null)
-                ub = new Integer(sr.getUpper());
-            return new Range<Integer>(lb, ub);
-        }
-        catch(NumberFormatException ex)
-        {
-            throw new IllegalArgumentException(pname + " cannot parse to integer: " + sr);
-        }
-    }
-
     static Range<Double> parseDoubleRange(String pname, Range<String> sr)
     {
         try
@@ -372,6 +361,11 @@ public class SiaValidator
                 lb = new Double(sr.getLower());
             if (sr.getUpper() != null)
                 ub = new Double(sr.getUpper());
+            // subsequent code treats null bound as unspecified (aka -inf or inf)
+            if (lb.isInfinite())
+                lb = null;
+            if (ub.isInfinite())
+                ub = null;
             return new Range<Double>(lb, ub);
         }
         catch(NumberFormatException ex)
@@ -379,66 +373,24 @@ public class SiaValidator
             throw new IllegalArgumentException(pname + " cannot parse to double: " + sr);
         }
     }
-    
-    static Range<Double> parseTimeRange(String pname, Range<String> sr)
+
+    private Range<String> parseStringRange(String v)
     {
-        try
-        {
-            Range<Double> ret = parseDoubleRange(pname, sr);
-            return ret;
-        }
-        catch(IllegalArgumentException iex)
-        {
-            UTCTimestampFormat df = new UTCTimestampFormat();
-            try
-            {
-                Double d1 = null;
-                Double d2 = null;
-                if (sr.getLower() != null)
-                {
-                    String s = sr.getLower();
-                    if (s.indexOf('T') == -1) // no time component
-                        s += "T00:00:00.000";
-                    Date d = df.parse(s);
-                    d1 = new Double(DateUtil.toModifiedJulianDate(d, DateUtil.UTC));
-                }
-                if (sr.getUpper() != null)
-                {
-                    String s = sr.getUpper();
-                    if (s.indexOf('T') == -1) // no time component
-                        s += "T23:59:59.999";
-                    Date d = df.parse(s);
-                    d2 = new Double(DateUtil.toModifiedJulianDate(d, DateUtil.UTC));
-                }
-                return new Range<Double>(d1, d2);
-            }
-            catch(Exception ex)
-            {
-                throw new IllegalArgumentException(pname + " cannot parse as timestamps " + sr);
-            }
-            finally { }
-        }
+        String[] vals = v.split(" ");
+        if (vals.length != 2)
+            throw new IllegalArgumentException("invalid range (must have 2 values): " + v);
+        return parseStringRange(vals);
     }
-    
-    // this is only used as an intermediate parsing state; there is no validn usage 
-    // of string ranges in query parameters
-    private static Range<String> parseStringRange(String v)
+    private static Range<String> parseStringRange(String[] vals)
     {
-        int i = v.indexOf('/');
-        int j = v.lastIndexOf('/');
-        if (i != j)
-            throw new IllegalArgumentException("invalid range - found / separator at positions " + i + " and " + j);
-        
-        if (i == 0 && v.length() == 1)
-            return new Range<String>(null, null); // open
-        if (i == -1)
-            return new Range<String>(v, v); // scalar
-        
-        String[] sa = v.split("/");
-        if (i == 0)
-            return new Range<String>(null, sa[1]); // leading zero-length string before /
-        if (sa.length == 1)
-            return new Range<String>(sa[0], null); // no trailing zero-length after /
-        return new Range<String>(sa[0], sa[1]);
+        // make this directly parseable by java.lang.Double
+        for (int i=0; i<2; i++)
+        {
+            if (vals[i].equalsIgnoreCase("-inf"))
+                vals[i] = "-Infinity";
+            else if (vals[i].equalsIgnoreCase("inf"))
+                vals[i] = "Infinity";
+        }
+        return new Range(vals[0], vals[1]);
     }
 }
