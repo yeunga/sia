@@ -113,9 +113,9 @@ public class SiaValidatorTest
         };
         String[] testRanges = new String[]
         {
-            "RANGE 10/11 20/21",
-            "Range 10/11 20/21",
-            "range 10/11 20/21"
+            "RANGE 10 11 20 21",
+            "Range 10 11 20 21",
+            "range 10 11 20 21"
         };
         String[] testPolygons = new String[]
         {
@@ -127,9 +127,9 @@ public class SiaValidatorTest
         {
             "Circle 12.3 34.5", // no radius
             "Circle x1.23e1 3.45e1 1.0e-1", // invalid number
-            "Range 1/2",         // not enough axes
-            "Range 1/2 3/4 5/6", // too many axes
-            "Range x1/x2 3/4",   // invalid number
+            "Range 1 2",         // not enough axes
+            "Range 1 2 3 4 5 6", // too many axes
+            "Range x1 x2 3 4",   // invalid number
             "Polygon 10 10 11 11 12x 13", // one value invalid number
             "Polygon 10 10 11 11", // not enough vertices
             "Polygon 10 10 11 10 11 11 12", // odd number of coord values
@@ -263,24 +263,23 @@ public class SiaValidatorTest
     @Test
     public void testValidateTIME()
     {
-        String LB = "54321.0/";
-        String UB = "/55432.1";
-        String OPEN = "/";
+        String LB = "54321.0 inf";
+        String UB = "-inf 55432.1";
+        String OPEN = "-inf inf";
         String[] testParams = new String[] { "TIME", "time", "TiMe" };
         String[] testValues = new String[]
         {
-            "54321.0/55432.1",
-            "5.43210e4/5.54321e4",
-            "5.43210E4/5.54321E4",
+            "54321.0 55432.1",
+            "5.43210e4 5.54321e4",
+            "5.43210E4 5.54321E4",
             LB,
             UB,
             OPEN
         };
         String[] invalidValues = new String[]
         {
-            "54321.0/55432.1/123", // too many slashes
-            "54321.0x/55432.1", // number format
-            //"54321.0 / 55432.1", // Double parser is tolerant of whitespace, hard to be strict
+            "54321.0 55432.1 123", // too many slashes
+            "54321.0x 55432.1", // number format
         };
         try
         {
@@ -361,84 +360,6 @@ public class SiaValidatorTest
                 Assert.assertEquals(54321.0, r.getLower(), 0.001);
                 Assert.assertEquals(55432.1, r.getUpper(), 0.001);
             } 
-            
-            // test timestamp support
-            Date d2 = new Date();
-            Date d1 = new Date(d2.getTime() - 4*60*60*1000L); // 4 hours ago
-            UTCTimestampFormat df = new UTCTimestampFormat();
-            String str1 = df.format(d1);
-            String str2 = df.format(d2);
-            Double mjd1 = DateUtil.toModifiedJulianDate(d1);
-            Double mjd2 = DateUtil.toModifiedJulianDate(d2);
-            params.clear();
-            vals.clear();
-            
-            // range
-            vals.add(str1 + "/" + str2);
-            params.put("TIME", vals);
-            times = sia.validateTIME(params);
-            Assert.assertNotNull(times);
-            Assert.assertEquals(1, times.size());
-            Range<Double> r = times.get(0);
-            Assert.assertEquals(mjd1, r.getLower(), 0.001);
-            Assert.assertEquals(mjd2, r.getUpper(), 0.001);
-            
-            // scalar
-            vals.clear();
-            vals.add(str1);
-            times = sia.validateTIME(params);
-            Assert.assertNotNull(times);
-            Assert.assertEquals(1, times.size());
-            r = times.get(0);
-            Assert.assertEquals(mjd1, r.getLower(), 0.001);
-            Assert.assertEquals(mjd1, r.getUpper(), 0.001);
-            
-            // lower/
-            vals.clear();
-            vals.add(str1 + "/");
-            times = sia.validateTIME(params);
-            Assert.assertNotNull(times);
-            Assert.assertEquals(1, times.size());
-            r = times.get(0);
-            Assert.assertEquals(mjd1, r.getLower(), 0.001);
-            Assert.assertNull(r.getUpper());
-            
-            // /upper
-            vals.clear();
-            vals.add("/" + str1);
-            times = sia.validateTIME(params);
-            Assert.assertNotNull(times);
-            Assert.assertEquals(1, times.size());
-            r = times.get(0);
-            Assert.assertNull(r.getLower());
-            Assert.assertEquals(mjd1, r.getUpper(), 0.001);
-            
-            // fill in missing time portion
-            str1 = "2012-01-01";
-            str2 = "2012-12-31";
-            mjd1 = DateUtil.toModifiedJulianDate(df.parse(str1+"T00:00:00.000"));
-            mjd2 = DateUtil.toModifiedJulianDate(df.parse(str2+"T23:59:59.999"));
-            vals.clear();
-            vals.add(str1 + "/" + str2); // all of 2012
-            times = sia.validateTIME(params);
-            Assert.assertNotNull(times);
-            Assert.assertEquals(1, times.size());
-            r = times.get(0);
-            Assert.assertEquals(mjd1, r.getLower(), 1.0e-6);
-            Assert.assertEquals(mjd2, r.getUpper(), 1.0e-6);
-            
-            // invalid date string
-            vals.clear();
-            vals.add("2012-01-02 12:34:56.789/");
-            try
-            {
-                times = sia.validateTIME(params);
-                Assert.fail("expected IllegalArgumentException,. got: " + times.size() + " Range(s)");
-            }
-            catch(IllegalArgumentException expected)
-            {
-                log.debug("caught expected: " + expected);
-            }
         }
         catch (Exception unexpected)
         {
@@ -869,18 +790,12 @@ public class SiaValidatorTest
 
     public void doValidateInteger(Method m, String paramName, String[] testParams)
     {
-        String LB = "12/";
-        String UB = "/34";
-        String OPEN = "/";
-        String SCALAR = "1";
         String[] testValues = new String[]
         {
-            "12/34",
-            "12/34",
-            SCALAR,
-            LB,
-            UB,
-            OPEN
+            "0",
+            "1",
+            "2",
+            "666"
         };
         try
         {
@@ -890,59 +805,34 @@ public class SiaValidatorTest
             {
                 for (String tv : testValues)
                 {
-                    List<String> vals = new ArrayList<String>();
-                    vals.add(tv);
-                    params.put(tp, vals);
+                    List<String> expected = new ArrayList<String>();
+                    expected.add(tv);
+                    params.put(tp, expected);
 
-                    List<Range<Integer>> ranges = (List<Range<Integer>>) m.invoke(sia, params);
+                    List<Integer> actual = (List<Integer>) m.invoke(sia, params);
 
-                    Assert.assertNotNull(ranges);
-                    Assert.assertEquals(1, ranges.size());
-                    Range<Integer> r = ranges.get(0);
-
-                    if (tv == SCALAR)
-                    {
-                        Assert.assertEquals(new Integer(1), r.getLower());
-                        Assert.assertEquals(new Integer(1), r.getUpper());
-                    }
-                    else if (tv == LB)
-                    {
-                        Assert.assertEquals(new Integer(12), r.getLower());
-                        Assert.assertNull(r.getUpper());
-                    }
-                    else if (tv == UB)
-                    {
-                        Assert.assertNull(r.getLower());
-                        Assert.assertEquals(new Integer(34), r.getUpper());
-                    }
-                    else if (tv == OPEN)
-                    {
-                        Assert.assertNull(r.getLower());
-                        Assert.assertNull(r.getUpper());
-                    }
-                    else
-                    {
-                        Assert.assertEquals(new Integer(12), r.getLower());
-                        Assert.assertEquals(new Integer(34), r.getUpper());
-                    }
+                    Assert.assertNotNull(actual);
+                    Assert.assertEquals(1, actual.size());
+                    Integer i = actual.get(0);
+                    Assert.assertEquals(tv, i.toString());
                 }
             }
 
             // test multiple values
             params.clear();
-            List<String> vals = new ArrayList<String>();
-            for (int i=0; i<2; i++)
+            List<String> expected = new ArrayList<String>();
+            for (String e : testValues)
             {
-                vals.add(testValues[i]);
+                expected.add(e);
             }
-            params.put(paramName, vals);
-            List<Range<Integer>> ranges = (List<Range<Integer>>) m.invoke(sia, params);
-            Assert.assertNotNull(ranges);
-            Assert.assertEquals(2, ranges.size());
-            for (Range<Integer> r : ranges)
+            params.put(paramName, expected);
+            List<Integer> actual = (List<Integer>) m.invoke(sia, params);
+            Assert.assertNotNull(actual);
+            Assert.assertEquals(expected.size(), actual.size());
+            for (String e : expected)
             {
-                Assert.assertEquals(new Integer(12), r.getLower());
-                Assert.assertEquals(new Integer(34), r.getUpper());
+                Integer ei = new Integer(e);
+                Assert.assertTrue(actual.contains(ei));
             }
         }
         catch (Exception unexpected)
@@ -954,15 +844,15 @@ public class SiaValidatorTest
 
     public void doValidateNumeric(Method m, String paramName, String[] testParams)
     {
-        String LB = "12.3/";
-        String UB = "/34.5";
-        String OPEN = "/";
-        String SCALAR = "1.0";
+        String LB = "12.3 inf";
+        String UB = "-inf 34.5";
+        String OPEN = "-inf inf";
+        String SCALAR = "1.0 1.0";
         String[] testValues = new String[]
         {
-            "12.3/34.5",
-            "1.23e1/3.45e1",
-            "1.23E1/3.45E1",
+            "12.3 34.5",
+            "1.23e1 3.45e1",
+            "1.23E1 3.45E1",
             SCALAR,
             LB,
             UB,
