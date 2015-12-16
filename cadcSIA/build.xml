@@ -93,15 +93,16 @@
     <!-- JAR files to be included in classpath and war file -->
     <property name="cadcDALI"       value="${lib}/cadcDALI.jar" />
     <property name="cadcLog"        value="${lib}/cadcLog.jar" />
-    <property name="cadcRegistry"   value="${lib}/cadcRegistryClient.jar" />
+    <property name="cadcRegistry"   value="${lib}/cadcRegistry.jar" />
     <property name="cadcUtil"       value="${lib}/cadcUtil.jar" />
     <property name="cadcUWS"        value="${lib}/cadcUWS.jar" />
-    <property name="cadcVOSI"        value="${lib}/cadcVOSI.jar" />
+    <property name="cadcUWS-Server" value="${lib}/cadcUWS-Server.jar" />
+    <property name="cadcVOSI"       value="${lib}/cadcVOSI.jar" />
     <property name="log4j"          value="${ext.lib}/log4j.jar" />
     <property name="jdom2"          value="${ext.lib}/jdom2.jar" />
 
     <property name="ext" value="${jdom2}:${log4j}" />
-    <property name="jars" value="${cadcDALI}:${cadcLog}:${cadcRegistry}:${cadcUtil}:${cadcUWS}:${cadcVOSI}:${ext}"/>
+    <property name="jars" value="${cadcDALI}:${cadcLog}:${cadcRegistry}:${cadcUtil}:${cadcUWS}:${cadcUWS-Server}:${cadcVOSI}:${ext}"/>
     
 
     <target name="build" depends="compile">
@@ -141,6 +142,7 @@
             <lib file="${cadcRegistry}" />
             <lib file="${cadcUtil}" />
             <lib file="${cadcUWS}" />
+            <lib file="${cadcUWS-Server}" />
             <lib file="${cadcVOSI}" />
             <lib file="${build}/lib/${project}.jar" />
         </war>
