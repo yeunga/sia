@@ -388,7 +388,7 @@ public class SiaValidator
         {
             if (vals[i].equalsIgnoreCase("-inf"))
                 vals[i] = "-Infinity";
-            else if (vals[i].equalsIgnoreCase("inf"))
+            else if (vals[i].equalsIgnoreCase("+inf"))
                 vals[i] = "Infinity";
         }
         return new Range(vals[0], vals[1]);

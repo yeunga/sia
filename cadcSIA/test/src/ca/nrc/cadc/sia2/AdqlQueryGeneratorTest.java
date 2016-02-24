@@ -147,7 +147,7 @@ public class AdqlQueryGeneratorTest
             params.put("BAND", Arrays.asList("500e-9 700e-9"));
             params.put("TIME", Arrays.asList("54321.0 55432.1"));
             params.put("POL", Arrays.asList("I"));
-            params.put("FOV", Arrays.asList("0.5 inf")); // > 0.5 deg
+            params.put("FOV", Arrays.asList("0.5 +inf")); // > 0.5 deg
             params.put("SPATRES", Arrays.asList("-inf 0.2")); // < 0.2 arcsec
             params.put("EXPTIME", Arrays.asList("600.0 3600.0")); // 10-60 minutes
 
@@ -206,10 +206,10 @@ public class AdqlQueryGeneratorTest
             Map<String,List<String>> params = new TreeMap<String,List<String>>(new CaseInsensitiveStringComparator());
             params.put("POS", Arrays.asList("CIRCLE 12.3 45.6 0.2", "RANGE -10 -8 +20 +22", "POLYGON 10 10 12 10 11 11"));
             params.put("BAND", Arrays.asList("500e-9 700e-9", "200e-9 400e-9"));
-            params.put("TIME", Arrays.asList("54321.0 55432.1", "56789.0 inf"));
+            params.put("TIME", Arrays.asList("54321.0 55432.1", "56789.0 +Inf"));
             params.put("POL", Arrays.asList("I", "Q", "U"));
-            params.put("FOV", Arrays.asList("0.5 inf", "-inf 2.0"));
-            params.put("SPATRES", Arrays.asList("-inf 0.2", "0.02 inf"));
+            params.put("FOV", Arrays.asList("0.5 +Inf", "-Inf 2.0"));
+            params.put("SPATRES", Arrays.asList("-Inf 0.2", "0.02 +Inf"));
             params.put("EXPTIME", Arrays.asList("10 20", "600.0 3600.0"));
 
             params.put("ID", Arrays.asList("A12345","12345B"));
@@ -219,8 +219,8 @@ public class AdqlQueryGeneratorTest
             params.put("DPTYPE", Arrays.asList("cube","image"));
             params.put("CALIB", Arrays.asList("2","4"));
             params.put("TARGET", Arrays.asList("M33","LMC"));
-            params.put("TIMERES", Arrays.asList("1.0 2.0","-inf 3.0"));
-            params.put("SPECRP", Arrays.asList("-inf 500","200 300"));
+            params.put("TIMERES", Arrays.asList("1.0 2.0","-Inf 3.0"));
+            params.put("SPECRP", Arrays.asList("-Inf 500","200 300"));
             params.put("FORMAT", Arrays.asList("application/fits","text/xml"));
             
             AdqlQueryGenerator gen = new AdqlQueryGenerator(params);
@@ -265,7 +265,7 @@ public class AdqlQueryGeneratorTest
         try
         {
             Map<String,List<String>> params = new TreeMap<String,List<String>>(new CaseInsensitiveStringComparator());
-            params.put("POS", Arrays.asList("RANGE -inf inf -2 2", "RANGE 10 20 -inf inf", "RANGE 1 2 3 4"));
+            params.put("POS", Arrays.asList("RANGE -Inf +Inf -2 2", "RANGE 10 20 -Inf +Inf", "RANGE 1 2 3 4"));
            
             AdqlQueryGenerator gen = new AdqlQueryGenerator(params);
             String adql = gen.getQuery();

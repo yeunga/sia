@@ -263,9 +263,9 @@ public class SiaValidatorTest
     @Test
     public void testValidateTIME()
     {
-        String LB = "54321.0 inf";
-        String UB = "-inf 55432.1";
-        String OPEN = "-inf inf";
+        String LB = "54321.0 +Inf";
+        String UB = "-Inf 55432.1";
+        String OPEN = "-Inf +Inf";
         String[] testParams = new String[] { "TIME", "time", "TiMe" };
         String[] testValues = new String[]
         {
@@ -844,9 +844,9 @@ public class SiaValidatorTest
 
     public void doValidateNumeric(Method m, String paramName, String[] testParams)
     {
-        String LB = "12.3 inf";
-        String UB = "-inf 34.5";
-        String OPEN = "-inf inf";
+        String LB = "12.3 +Inf";
+        String UB = "-Inf 34.5";
+        String OPEN = "-Inf +Inf";
         String SCALAR = "1.0 1.0";
         String[] testValues = new String[]
         {
