@@ -69,6 +69,8 @@
 
 package ca.nrc.cadc.sia2.impl;
 
+import ca.nrc.cadc.auth.AuthMethod;
+import ca.nrc.cadc.reg.Standards;
 import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.sia2.SiaRunner;
 import ca.nrc.cadc.vosi.AvailabilityStatus;
@@ -101,7 +103,7 @@ public class ServiceAvailability implements WebService
         {
             // test the TAP service
             RegistryClient regClient = new RegistryClient();
-            URL tapBaseURL = regClient.getServiceURL(new URI(getTapURI()));
+            URL tapBaseURL = regClient.getServiceURL(new URI(getTapURI()), Standards.TAP_10, AuthMethod.ANON);
             String availURL = tapBaseURL.toExternalForm() + "/availability";
             CheckWebService checkWebService = null;
             checkWebService = new CheckWebService(availURL);

@@ -69,11 +69,14 @@
 
 package ca.nrc.cadc.sia2;
 
+import ca.nrc.cadc.auth.AuthMethod;
+import ca.nrc.cadc.auth.AuthenticationUtil;
 import ca.nrc.cadc.dali.MaxRecValidator;
 import ca.nrc.cadc.dali.ParamExtractor;
 import ca.nrc.cadc.dali.RequestValidator;
 import ca.nrc.cadc.dali.tables.votable.VOTableWriter;
 import ca.nrc.cadc.net.HttpPost;
+import ca.nrc.cadc.reg.Standards;
 import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.sia2.impl.ServiceAvailability;
 import ca.nrc.cadc.uws.ErrorSummary;
@@ -189,7 +192,8 @@ public class SiaRunner implements JobRunner
             
             // post ADQL query to TAP but do not follow redirect to execute it
             String tapURI = ServiceAvailability.getTapURI();
-            URL tapSyncURL = regClient.getServiceURL(new URI(tapURI), "http", "/sync");
+            AuthMethod am = AuthenticationUtil.getAuthMethod(AuthenticationUtil.getCurrentSubject());
+            URL tapSyncURL = regClient.getServiceURL(new URI(tapURI), Standards.TAP_SYNC_11, am);
             HttpPost post = new HttpPost(tapSyncURL, parameters, false);
             post.run();
 
