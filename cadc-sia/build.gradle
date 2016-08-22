@@ -15,21 +15,23 @@ repositories {
     }
 }
 
-group = 'opencadc'
 sourceCompatibility = 1.7
-version = '1.0.0'
+
+group = 'org.opencadc'
+
+version = '1.0'
 
 dependencies {
     compile 'log4j:log4j:1.2.+'
     compile 'org.jdom:jdom2:2.+'
 
-    compile 'opencadc:cadcDALI:1.+'
-    compile 'opencadc:cadcLog:1.+'
-    compile 'opencadc:cadcRegistry:1.+'
-    compile 'opencadc:cadcUtil:1.+'
-    compile 'opencadc:cadcUWS:1.+'
-    compile 'opencadc:cadcUWS-Server:1.+'
-    compile 'opencadc:cadcVOSI:1.+'
+    compile 'org.opencadc:cadc-dali:1.+'
+    compile 'org.opencadc:cadc-log:1.+'
+    compile 'org.opencadc:cadc-registry:1.+'
+    compile 'org.opencadc:cadc-util:1.+'
+    compile 'org.opencadc:cadc-uws:1.+'
+    compile 'org.opencadc:cadc-uws-server:1.+'
+    compile 'org.opencadc:cadc-vosi:1.+'
 
     testCompile 'apache-logging:commons-logging-api:1.+'
     testCompile 'junit:junit:4.+'
