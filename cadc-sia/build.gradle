@@ -37,3 +37,4 @@ dependencies {
     testCompile 'junit:junit:4.+'
     testCompile 'xerces:xercesImpl:2.+'
 }
+
