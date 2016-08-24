@@ -87,8 +87,8 @@ public class AdqlQueryGenerator
 
     /**
      * The input SIA query parameters as structured by the ParamExtractor in cadcDALI.
-     * 
-     * @param query
+     *
+     * @param query query input parameters
      * @see ca.nrc.cadc.dali.ParamExtractor
      */
     public AdqlQueryGenerator(Map<String,List<String>> query)
@@ -97,9 +97,9 @@ public class AdqlQueryGenerator
     }
 
     /**
-     * Map wit the REQUEST, LANG, and QUERY parameters.
+     * Map with the REQUEST, LANG, and QUERY parameters.
      * 
-     * @return 
+     * @return map of parameter names and values
      */
     public Map<String,Object> getParameterMap()
     {

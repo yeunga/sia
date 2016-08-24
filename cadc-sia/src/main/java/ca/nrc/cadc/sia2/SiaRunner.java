@@ -101,7 +101,7 @@ import org.apache.log4j.Logger;
 /**
  * Standard JobRunner implementation for SIA-2.0 services. This implementation 
  * makes the following assumptions:
- * </p>
+ *
  * <ul>
  * <li>hard-coded to generate an ADQL query on the ivoa.ObsCore table
  * <li>no support for authenticated calls, use of CDP, etc (TODO)
